@@ -1,0 +1,2 @@
+SOURCE_ID	RA_J2000 [deg]	Dec_J2000 [deg]	Flux [Jy]	Frequency [Hz]	Spectral_index
+HERATEST0	125.7    	-30.72    	1	100000000.0	0.0
