@@ -7,13 +7,13 @@ from astropy.coordinates import EarthLocation
 from pyuvsim import AnalyticBeam
 from vis_cpu import conversions
 
-correct_radec = True
-
 def load_config(fname, correct_radec = False):
     """
     Load config file for hera_sim.
 
     fname: yaml file name
+
+    correct_radec: Correct source locations so that vis_cpu uses the right frame (default False)
     """
 
     with open(fname, "r") as conf:
@@ -102,4 +102,3 @@ def load_config(fname, correct_radec = False):
     
     
     return uvdata, beams, beam_ids, freqs, ra_dec, flux
-
