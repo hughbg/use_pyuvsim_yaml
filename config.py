@@ -45,7 +45,7 @@ def load_config(fname, correct_radec = False):
         Npols = 4
     )
     
-    # Simple load of antennas which assumes CSV in the right format
+    # Simple load of sources which assumes CSV in the right format
           
     sources = np.genfromtxt(config["sources"]["catalog"], dtype=str, skip_header=1)
     if sources.ndim == 1: 
