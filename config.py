@@ -1,13 +1,19 @@
 import numpy as np
 from hera_sim import io
 import yaml, csv
-from pyuvsim import AnalyticBeam
+from astropy.time import Time
+from astropy.coordinates import EarthLocation
 
-def load_config(fname):
+from pyuvsim import AnalyticBeam
+from vis_cpu import conversions
+
+def load_config(fname, correct_radec = False):
     """
     Load config file for hera_sim.
 
     fname: yaml file name
+
+    correct_radec: Correct source locations so that vis_cpu uses the right frame (default False)
     """
 
     with open(fname, "r") as conf:
@@ -25,7 +31,7 @@ def load_config(fname):
             ant_to_beam.append(int(l[2]))
             ants[i] = ( float(l[3]), float(l[4]), float(l[5]))
             i += 1
-        
+
     # Observing parameters in a UVData object.
     uvdata = io.empty_uvdata(
         Nfreqs = config["freq"]["Nfreqs"],             
@@ -60,7 +66,21 @@ def load_config(fname):
 
     with open(config["telescope"]["telescope_config_name"], "r") as conf:
         telescope = yaml.load(conf.read(), Loader=yaml.FullLoader)
+
+    if correct_radec:
+        loc = telescope["telescope_location"][1:-1].split(",")
+
+        # Correct source locations so that vis_cpu uses the right frame
+        obstime = Time(config["time"]["start_time"], format="jd", scale="utc")
+
+        location = EarthLocation.from_geodetic(lat=float(loc[0]), lon=float(loc[1]), height=float(loc[2]))
+
+        ra_new, dec_new = conversions.equatorial_to_eci_coords(
+            ra_dec[:, 0], ra_dec[:, 1], obstime, location, unit="rad", frame="icrs")
         
+        ra_dec = np.column_stack((ra_new, dec_new))
+
+
     # When this issue gets fixed this will need to change.
     defined_beams = {}
     for id in telescope["beam_paths"].keys():
@@ -85,4 +105,3 @@ def load_config(fname):
     
     
     return uvdata, beams, beam_ids, freqs, ra_dec, flux
-

@@ -4,7 +4,7 @@
 import numpy as np
 from pyuvsim import uvsim
 from hera_sim.visibilities import VisCPU
-import config
+import config, sys
 
 # pyuvsim
 
@@ -16,8 +16,15 @@ sim_cross = uvd_out.get_data(0, 1, "XX")[0][0]
 print("pyuvsim -------------")
 print("ant 0 auto amp:", np.abs(sim_auto))
 print("ant 0,1 cross amp:", np.abs(sim_cross), "phase:", np.angle(sim_cross))
+print("ant 0,1 cross real:", np.real(sim_cross), "imag:", np.imag(sim_cross))
 
-uvdata, beam, beam_ids, freqs, ra_dec, flux = config.load_config("params.yaml")
+
+if len(sys.argv) > 1:
+    correct_radec = sys.argv[1]
+else:
+    correct_radec = False
+
+uvdata, beam, beam_ids, freqs, ra_dec, flux = config.load_config("params.yaml",correct_radec=correct_radec)
 
 simulator = VisCPU(
     uvdata = uvdata,
@@ -30,12 +37,12 @@ simulator = VisCPU(
 )
 
 simulator.simulate()
-
+uvdata.write_uvh5('Gen1_1.uvh5', clobber=True)
 sim_auto = simulator.uvdata.get_data(0, 0, "XX")[0][0]
 sim_cross = simulator.uvdata.get_data(0, 1, "XX")[0][0]
 
 print("hera_sim ----")
 print("ant 0 auto amp:", np.abs(sim_auto))
 print("ant 0,1 cross amp:", np.abs(sim_cross), "phase:", np.angle(sim_cross))
-
+print("ant 0,1 cross real:", np.real(sim_cross), "imag:", np.imag(sim_cross))
 
