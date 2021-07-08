@@ -39,17 +39,19 @@ def load_config(fname):
         Npols = 4
     )
     
-        # Simple load of antennas which assumes CSV in the right format
-    sources = []
-    with open(config["sources"]["catalog"]) as fp:
-        lines = fp.readlines()
-    i = 0
-    for line in lines:
-        l = line.split()
-        if len(l) > 0 and l[0] != "SOURCE_ID":
-            # ra, dec, flux, ref freq, spectral index
-            sources.append([ float(l[1]), float(l[2]), float(l[3]), float(l[4]), float(l[5])])
-    sources = np.array(sources)   
+    # Simple load of antennas which assumes CSV in the right format
+          
+    sources = np.genfromtxt(config["sources"]["catalog"], dtype=str, skip_header=1)
+    if sources.ndim == 1: 
+        sources = np.expand_dims(sources, 0)          # Make list of lists
+
+    sources = sources[:, 1:].astype(float)            # Ignore source ids
+
+    if sources.shape[1] == 4: 
+        # There is no spectral index, add the column.
+        print("No spectral index, setting to 0")
+        sources = np.append(sources, np.zeros((1, sources.shape[0])), axis=1)
+    
     ra_dec = np.deg2rad(sources[:, :2])
 
     # calculate source fluxes 
@@ -62,17 +64,19 @@ def load_config(fname):
     # When this issue gets fixed this will need to change.
     defined_beams = {}
     for id in telescope["beam_paths"].keys():
-        beam_spec = telescope["beam_paths"][id]
-            
-        if beam_spec["type"] == "gaussian":
-            defined_beams[id] = AnalyticBeam("gaussian", sigma=beam_spec["sigma"])
-        elif beam_spec["type"] == "uniform":
-            defined_beams[id] = AnalyticBeam("uniform")
-        elif beam_spec["type"] == "airy":
-            defined_beams[id] = AnalyticBeam("airy", diameter=beam_spec["diameter"])
+        
+        # The spec could be in a couple of different formats, one is a str
+        # and the other is a dict with an option. Get the values.
+        if isinstance(telescope["beam_paths"][id], str):
+            beam_type = telescope["beam_paths"][id] 
+            options = {}
         else:
-            raise RuntimeError("Expecting AnalyticBeam specification")
-
+            beam_type = telescope["beam_paths"][id]["type"]
+            del telescope["beam_paths"][id]["type"]
+            options = telescope["beam_paths"][id]
+            
+        defined_beams[id] = AnalyticBeam(beam_type, **options)
+        
     # Now give each antenna the right beam
     beams = [ None for i in range(len(ant_to_beam)) ]
     for i in range(len(ant_to_beam)):
