@@ -56,7 +56,7 @@ def load_config(fname, correct_radec = False):
     if sources.shape[1] == 4: 
         # There is no spectral index, add the column.
         print("No spectral index, setting to 0")
-        sources = np.append(sources, np.zeros((1, sources.shape[0])), axis=1)
+        sources = np.append(sources, np.zeros((sources.shape[0], 1)), axis=1)
     
     ra_dec = np.deg2rad(sources[:, :2])
 
@@ -103,5 +103,8 @@ def load_config(fname, correct_radec = False):
         beams[i] = defined_beams[ant_to_beam[i]]
     beam_ids = list(range(len(ant_to_beam)))
     
+
+    # output file
+    outfile = config["filing"]["outdir"] + "/" + config["filing"]["outfile_name"] + "_herasim." + config["filing"]["output_format"]
     
-    return uvdata, beams, beam_ids, freqs, ra_dec, flux
+    return uvdata, beams, beam_ids, freqs, ra_dec, flux, outfile
