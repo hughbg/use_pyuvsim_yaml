@@ -8,16 +8,18 @@ import config, sys
 
 # pyuvsim
 
-uvd_out = uvsim.run_uvsim("params.yaml", return_uv=True)
+#uvd_out = uvsim.run_uvsim(sys.argv[1], return_uv=False)
+uvd_out = uvsim.run_uvsim(sys.argv[1], return_uv=False)
 
-sim_auto = uvd_out.get_data(0, 0, "XX")[0][0]
-sim_cross = uvd_out.get_data(0, 1, "XX")[0][0]
+'''
+sim_auto = uvd_out.get_data(40, 40, "XX")[0][0]
+sim_cross = uvd_out.get_data(40, 41, "XX")[0][0]
 
 print("pyuvsim -------------")
 print("ant 0 auto amp:", np.abs(sim_auto))
 print("ant 0,1 cross amp:", np.abs(sim_cross), "phase:", np.angle(sim_cross))
 print("ant 0,1 cross real:", np.real(sim_cross), "imag:", np.imag(sim_cross))
-
+'''
 
 if len(sys.argv) > 2:
     correct_radec = eval(sys.argv[2])
@@ -37,8 +39,9 @@ simulator = VisCPU(
 )
 
 simulator.simulate()
-
 uvdata.write_uvh5(outfile, clobber=True)
+
+'''
 sim_auto = simulator.uvdata.get_data(0, 0, "XX")[0][0]
 sim_cross = simulator.uvdata.get_data(0, 1, "XX")[0][0]
 
@@ -46,4 +49,4 @@ print("hera_sim ----")
 print("ant 0 auto amp:", np.abs(sim_auto))
 print("ant 0,1 cross amp:", np.abs(sim_cross), "phase:", np.angle(sim_cross))
 print("ant 0,1 cross real:", np.real(sim_cross), "imag:", np.imag(sim_cross))
-
+'''
