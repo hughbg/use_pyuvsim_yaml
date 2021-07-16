@@ -1,0 +1,23 @@
+# https://pyuvsim.readthedocs.io/en/latest/parameter_files.html
+filing:
+  outdir: '.'
+  outfile_name: 'Gen1.2g'
+  output_format: 'uvh5'
+freq:
+  Nfreqs: 1
+  channel_width: 80000.0
+  start_freq: 100000000.0
+sources:
+  catalog: 'two_distant_points_2458098.38824015.txt'
+  table_name: single  # Required for non-GLEAM VO table files
+  id_column: SOURCE_ID  # Required for non-GLEAM VO table files
+  flux_columns: Flux  # Required for non-GLEAM VO table files
+  ra_column: RA_J2000  # Recommended for non-GLEAM VO table files
+  dec_column: Dec_J2000  # Recommended for non-GLEAM VO table files
+telescope:
+  array_layout: 'baseline_lite.csv'
+  telescope_config_name: 'bl_lite_gauss.yaml'
+time:
+  Ntimes: 86400
+  integration_time: 40
+  start_time: 2458902.4
